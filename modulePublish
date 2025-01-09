@@ -1,0 +1,36 @@
+import requests
+import os
+
+# Set up your variables
+api_token = "your_api_token_here"
+registry_url = "https://your-terraform-registry.com/v1/modules"
+namespace = "your_namespace"
+module_name = "your_module_name"
+provider = "your_provider"
+version = "1.0.0"
+module_file_path = "path/to/your/module.tar.gz"
+
+# Headers for authentication
+headers = {
+    "Authorization": f"Bearer {api_token}",
+    "Content-Type": "application/octet-stream"
+}
+
+# API endpoint to publish the module
+upload_url = f"{registry_url}/{namespace}/{module_name}/{provider}/versions/{version}"
+
+# Check if file exists
+if not os.path.exists(module_file_path):
+    print(f"Module file not found: {module_file_path}")
+    exit(1)
+
+# Upload the module
+with open(module_file_path, "rb") as module_file:
+    response = requests.put(upload_url, headers=headers, data=module_file)
+
+# Check the response
+if response.status_code == 200 or response.status_code == 201:
+    print("Module successfully published to Terraform Private Registry.")
+else:
+    print(f"Failed to publish module. Status code: {response.status_code}")
+    print(f"Response: {response.text}")
